@@ -50,8 +50,7 @@ public class TicketService {
         );
 
         Ticket savedTicket = ticketRepository.save(ticket);
-        TicketResponseDTO r = TicketResponseDTO.from(savedTicket);
-        return r;
-
+        return TicketResponseDTO.from(savedTicket);
     }
+
 }
