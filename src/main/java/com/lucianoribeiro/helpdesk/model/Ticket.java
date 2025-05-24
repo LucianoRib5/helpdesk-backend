@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Entity
@@ -53,6 +54,11 @@ public class Ticket {
 
     @Column(name = "rating_comment")
     private String ratingComment;
+
+    @OneToMany()
+    @JoinColumn(name = "ticket_id")
+    private List<TicketUpdateHistory> updateHistory;
+
 
     public Integer getTicketStatusId() {
         return status.getId();
