@@ -24,7 +24,7 @@ public class TicketController {
         return new ResponseEntity<>(createdTicket, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{customerId}")
+    @GetMapping("/customer/{customerId}")
     public ResponseEntity<ArrayList<TicketResponseDTO>> getTicketsByCustomerId(@PathVariable("customerId") Long customerId) {
         ArrayList<TicketResponseDTO> tickets = ticketService.getTicketsByCustomerId(customerId);
         return new ResponseEntity<>(tickets, HttpStatus.OK);
