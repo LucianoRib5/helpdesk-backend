@@ -36,4 +36,10 @@ public class TicketController {
         return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
+    @GetMapping("/{ticketId}")
+    public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable("ticketId") Long ticketId) {
+        TicketResponseDTO ticket = ticketService.getTicketById(ticketId);
+        return new ResponseEntity<>(ticket, HttpStatus.OK);
+    }
+
 }

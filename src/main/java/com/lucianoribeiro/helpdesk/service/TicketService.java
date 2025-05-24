@@ -70,4 +70,13 @@ public class TicketService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public TicketResponseDTO getTicketById(Long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElse(null);
+        if (ticket == null) {
+            throw new RuntimeException("Ticket not found");
+        }
+        return TicketResponseDTO.from(ticket);
+    }
+
 }
