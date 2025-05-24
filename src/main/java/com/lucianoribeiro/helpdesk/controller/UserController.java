@@ -1,5 +1,7 @@
 package com.lucianoribeiro.helpdesk.controller;
 
+import com.lucianoribeiro.helpdesk.dto.AuthRequestDTO;
+import com.lucianoribeiro.helpdesk.dto.AuthResponseDTO;
 import com.lucianoribeiro.helpdesk.dto.UserRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.UserResponseDTO;
 import com.lucianoribeiro.helpdesk.service.UserService;
@@ -23,5 +25,11 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO dto) {
         UserResponseDTO createdUser = userService.createUser(dto);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO dto) {
+        AuthResponseDTO response = userService.login(dto.getEmail(), dto.getPassword());
+        return ResponseEntity.ok(response);
     }
 }

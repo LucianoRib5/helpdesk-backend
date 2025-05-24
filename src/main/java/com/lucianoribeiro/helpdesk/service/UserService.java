@@ -1,5 +1,6 @@
 package com.lucianoribeiro.helpdesk.service;
 
+import com.lucianoribeiro.helpdesk.dto.AuthResponseDTO;
 import com.lucianoribeiro.helpdesk.dto.UserRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.UserResponseDTO;
 import com.lucianoribeiro.helpdesk.model.User;
@@ -8,6 +9,7 @@ import com.lucianoribeiro.helpdesk.model.UserType;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
 import com.lucianoribeiro.helpdesk.repository.UserStatusRepository;
 import com.lucianoribeiro.helpdesk.repository.UserTypeRepository;
+import com.lucianoribeiro.helpdesk.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -59,5 +61,17 @@ public class UserService {
 
         User saved = userRepository.save(user);
         return UserResponseDTO.from(saved);
+    }
+
+    public AuthResponseDTO login(String email, String rawPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new RuntimeException("Senha inválida");
+        }
+
+        String token = JwtUtil.generateToken(user.getEmail());
+        return new AuthResponseDTO(token);
     }
 }
