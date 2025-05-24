@@ -13,6 +13,9 @@ import com.lucianoribeiro.helpdesk.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class TicketService {
@@ -51,6 +54,13 @@ public class TicketService {
 
         Ticket savedTicket = ticketRepository.save(ticket);
         return TicketResponseDTO.from(savedTicket);
+    }
+
+    public ArrayList<TicketResponseDTO> getTicketsByCustomerId(Long customerId) {
+        ArrayList<Ticket> tickets = ticketRepository.findByCustomerId(customerId);
+        return tickets.stream()
+                .map(TicketResponseDTO::from)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
 }

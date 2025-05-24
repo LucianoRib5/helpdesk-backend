@@ -7,10 +7,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -23,6 +22,12 @@ public class TicketController {
     public ResponseEntity<TicketResponseDTO> createTicket(@RequestBody @Valid TicketRequestDTO dto) {
         TicketResponseDTO createdTicket = ticketService.createTicket(dto);
         return new ResponseEntity<>(createdTicket, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{customerId}")
+    public ResponseEntity<ArrayList<TicketResponseDTO>> getTicketsByCustomerId(@PathVariable("customerId") Long customerId) {
+        ArrayList<TicketResponseDTO> tickets = ticketService.getTicketsByCustomerId(customerId);
+        return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
 }
