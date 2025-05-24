@@ -63,4 +63,11 @@ public class TicketService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public ArrayList<TicketResponseDTO> getAllTickets() {
+        ArrayList<Ticket> tickets = (ArrayList<Ticket>) ticketRepository.findAll();
+        return tickets.stream()
+                .map(TicketResponseDTO::from)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
 }

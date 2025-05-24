@@ -30,4 +30,10 @@ public class TicketController {
         return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<ArrayList<TicketResponseDTO>> getAllTickets() {
+        ArrayList<TicketResponseDTO> tickets = ticketService.getAllTickets();
+        return new ResponseEntity<>(tickets, HttpStatus.OK);
+    }
+
 }
