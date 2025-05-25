@@ -1,15 +1,15 @@
 package com.lucianoribeiro.helpdesk.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
 @Table(name = "user_types")
+@Getter
 public class UserType {
 
     @Id
-    private Long id;
+    private Integer id;
 
     private String description;
 

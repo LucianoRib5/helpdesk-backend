@@ -1,11 +1,12 @@
 package com.lucianoribeiro.helpdesk.service;
 
-import com.lucianoribeiro.helpdesk.dto.AuthResponseDTO;
-import com.lucianoribeiro.helpdesk.dto.UserRequestDTO;
-import com.lucianoribeiro.helpdesk.dto.UserResponseDTO;
+import com.lucianoribeiro.helpdesk.dto.*;
+import com.lucianoribeiro.helpdesk.enums.UserTypeEnum;
 import com.lucianoribeiro.helpdesk.model.User;
+import com.lucianoribeiro.helpdesk.model.UserPermission;
 import com.lucianoribeiro.helpdesk.model.UserStatus;
 import com.lucianoribeiro.helpdesk.model.UserType;
+import com.lucianoribeiro.helpdesk.repository.UserPermissionRepository;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
 import com.lucianoribeiro.helpdesk.repository.UserStatusRepository;
 import com.lucianoribeiro.helpdesk.repository.UserTypeRepository;
@@ -22,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserTypeRepository typeRepository;
     private final UserStatusRepository statusRepository;
+    private final UserPermissionRepository userPermissionRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserResponseDTO createUser(UserRequestDTO dto) {
@@ -72,6 +74,22 @@ public class UserService {
         }
 
         String token = JwtUtil.generateToken(user.getEmail());
-        return new AuthResponseDTO(token);
+        UserPermission userPermission = userPermissionRepository.findByUserTypeId(user.getType().getId());
+
+        return AuthResponseDTO.from(
+                token,
+                UserBasicInfoDTO.from(
+                        user.getId(),
+                        user.getName(),
+                        UserTypeEnum.fromId(user.getType().getId()),
+                        UserPermissionDTO.from(
+                                userPermission.isCanCreateTicket(),
+                                userPermission.isCanEditTicket(),
+                                userPermission.isCanAssignTicket(),
+                                userPermission.isCanCloseTicket(),
+                                userPermission.isCanManagerReports(),
+                                userPermission.isCanManageUsers()
+                        )
+                ));
     }
 }
