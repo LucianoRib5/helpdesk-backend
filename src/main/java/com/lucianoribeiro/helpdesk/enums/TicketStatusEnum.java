@@ -1,6 +1,5 @@
 package com.lucianoribeiro.helpdesk.enums;
 
-import com.lucianoribeiro.helpdesk.model.TicketStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

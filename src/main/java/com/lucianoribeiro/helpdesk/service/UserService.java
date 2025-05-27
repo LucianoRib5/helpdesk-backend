@@ -26,7 +26,7 @@ public class UserService {
     private final UserPermissionRepository userPermissionRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponseDTO createUser(UserRequestDTO dto) {
+    public User createUser(UserRequestDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new IllegalArgumentException("Email já cadastrado.");
         }
@@ -43,26 +43,16 @@ public class UserService {
             throw new IllegalArgumentException("Telefone já cadastrado.");
         }
 
-        UserType type = typeRepository.findById(dto.getTypeId())
-                .orElseThrow(() -> new RuntimeException("Tipo de usuário não encontrado"));
+        UserType userType = null;
 
-        UserStatus status = statusRepository.findById(dto.getStatusId())
-                .orElseThrow(() -> new RuntimeException("Status de usuário não encontrado"));
+        if (dto.getTypeId() != null) {
+            userType = typeRepository.findById(dto.getTypeId())
+                    .orElseThrow(() -> new RuntimeException("Tipo de usuário não encontrado"));
+        }
 
-        User user = new User();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setCpf(dto.getCpf());
-        user.setCnpj(dto.getCnpj());
-        user.setPhoneNumber(dto.getPhoneNumber());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setType(type);
-        user.setStatus(status);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
+        User user = User.from(dto, passwordEncoder, userType);
 
-        User saved = userRepository.save(user);
-        return UserResponseDTO.from(saved);
+        return userRepository.save(user);
     }
 
     public AuthResponseDTO login(String email, String rawPassword) {

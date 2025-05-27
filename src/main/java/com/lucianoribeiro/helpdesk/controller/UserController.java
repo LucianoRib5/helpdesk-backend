@@ -4,6 +4,7 @@ import com.lucianoribeiro.helpdesk.dto.AuthRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.AuthResponseDTO;
 import com.lucianoribeiro.helpdesk.dto.UserRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.UserResponseDTO;
+import com.lucianoribeiro.helpdesk.model.User;
 import com.lucianoribeiro.helpdesk.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+import java.net.URI;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -22,9 +25,10 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody @Valid UserRequestDTO dto) {
-        UserResponseDTO createdUser = userService.createUser(dto);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public ResponseEntity<Void> createUser(@RequestBody @Valid UserRequestDTO dto) {
+        User createdUser = userService.createUser(dto);
+        URI location = URI.create("/users/" + createdUser.getId());
+        return ResponseEntity.created(location).build();
     }
 
     @PostMapping("/login")
