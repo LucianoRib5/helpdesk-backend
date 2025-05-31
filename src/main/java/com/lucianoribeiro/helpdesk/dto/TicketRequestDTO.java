@@ -15,5 +15,6 @@ public class TicketRequestDTO {
     private String description;
     private Integer priorityId;
     private Long customerId;
+    private Long createdById;
 
 }

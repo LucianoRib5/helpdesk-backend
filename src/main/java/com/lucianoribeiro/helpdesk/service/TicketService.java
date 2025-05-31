@@ -4,12 +4,10 @@ import com.lucianoribeiro.helpdesk.dto.TicketRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
 import com.lucianoribeiro.helpdesk.enums.TicketPriorityEnum;
 import com.lucianoribeiro.helpdesk.enums.TicketStatusEnum;
-import com.lucianoribeiro.helpdesk.model.Customer;
-import com.lucianoribeiro.helpdesk.model.Ticket;
-import com.lucianoribeiro.helpdesk.model.TicketPriority;
-import com.lucianoribeiro.helpdesk.model.TicketStatus;
+import com.lucianoribeiro.helpdesk.model.*;
 import com.lucianoribeiro.helpdesk.repository.CustomerRepository;
 import com.lucianoribeiro.helpdesk.repository.TicketRepository;
+import com.lucianoribeiro.helpdesk.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +20,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
 
     public TicketResponseDTO createTicket(TicketRequestDTO ticketRequestDTO) {
         if (ticketRequestDTO.getCustomerId() == null) {
@@ -39,6 +38,9 @@ public class TicketService {
         Customer customer = customerRepository.findById(ticketRequestDTO.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
 
+        User createdBy = userRepository.findById(ticketRequestDTO.getCreatedById())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         TicketStatus status = new TicketStatus();
         status.setTicketStatusEnum(TicketStatusEnum.OPEN);
 
@@ -48,6 +50,7 @@ public class TicketService {
         Ticket ticket = Ticket.from(
                 ticketRequestDTO,
                 customer,
+                createdBy,
                 status,
                 priority
         );

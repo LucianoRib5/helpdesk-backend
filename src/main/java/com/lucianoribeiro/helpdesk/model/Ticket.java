@@ -44,6 +44,9 @@ public class Ticket {
     @JoinColumn(name = "priority_id")
     private TicketPriority priority;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -71,6 +74,7 @@ public class Ticket {
     public static Ticket from(
             TicketRequestDTO ticketRequestDTO,
             Customer customer,
+            User createdBy,
             TicketStatus status,
             TicketPriority priority
     ) {
@@ -80,6 +84,7 @@ public class Ticket {
         ticket.setDescription(ticketRequestDTO.getDescription());
         ticket.setStatus(status);
         ticket.setPriority(priority);
+        ticket.setCreatedBy(createdBy.getId());
         ticket.setCreatedAt(LocalDateTime.now());
         ticket.setUpdatedAt(LocalDateTime.now());
         return ticket;
