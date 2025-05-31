@@ -183,6 +183,7 @@ CREATE TABLE tickets (
     description VARCHAR(255) NOT NULL,
     status_id INT NOT NULL,
     priority_id INT NOT NULL,
+    created_by BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     rating INT,
@@ -190,7 +191,8 @@ CREATE TABLE tickets (
     FOREIGN KEY (customer_id) REFERENCES customers(id),
     FOREIGN KEY (technician_id) REFERENCES technicians(id),
     FOREIGN KEY (status_id) REFERENCES ticket_status(id),
-    FOREIGN KEY (priority_id) REFERENCES ticket_priorities(id)
+    FOREIGN KEY (priority_id) REFERENCES ticket_priorities(id),
+    FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
 CREATE TABLE ticket_update_types (
