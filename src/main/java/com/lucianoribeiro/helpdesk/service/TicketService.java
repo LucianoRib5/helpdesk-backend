@@ -15,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,11 +61,21 @@ public class TicketService {
         return TicketResponseDTO.from(savedTicket);
     }
 
-    public ArrayList<TicketResponseDTO> getTicketsByCustomerId(Long customerId) {
-        ArrayList<Ticket> tickets = ticketRepository.findByCustomerId(customerId);
-        return tickets.stream()
-                .map(TicketResponseDTO::from)
-                .collect(Collectors.toCollection(ArrayList::new));
+    public Page<TicketResponseDTO> getTicketsByCustomerId(
+            Long customerId,
+            String title,
+            Integer status,
+            Integer priority,
+            Pageable pageable
+    ) {
+        Specification<Ticket> spec = Specification
+                .where(TicketSpecifications.hasCustomerId(customerId))
+                .and(TicketSpecifications.hasTitle(title))
+                .and(TicketSpecifications.hasStatus(status))
+                .and(TicketSpecifications.hasPriority(priority));
+
+        return ticketRepository.findAll(spec, pageable)
+                .map(TicketResponseDTO::from);
     }
 
     public Page<TicketResponseDTO> getAllTickets(String title, Integer status, Integer priority, Pageable pageable) {

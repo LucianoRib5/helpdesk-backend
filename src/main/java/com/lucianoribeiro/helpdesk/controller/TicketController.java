@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-
 @RestController
 @RequestMapping("/api/tickets")
 @RequiredArgsConstructor
@@ -29,9 +27,21 @@ public class TicketController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<ArrayList<TicketResponseDTO>> getTicketsByCustomerId(@PathVariable("customerId") Long customerId) {
-        ArrayList<TicketResponseDTO> tickets = ticketService.getTicketsByCustomerId(customerId);
-        return new ResponseEntity<>(tickets, HttpStatus.OK);
+    public ResponseEntity<Page<TicketResponseDTO>> getTicketsByCustomerId(
+            @PathVariable Long customerId,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Integer priority,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<TicketResponseDTO> result = ticketService.getTicketsByCustomerId(customerId, title, status, priority, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping
