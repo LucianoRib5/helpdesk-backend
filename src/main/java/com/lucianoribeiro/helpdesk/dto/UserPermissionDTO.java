@@ -1,5 +1,6 @@
 package com.lucianoribeiro.helpdesk.dto;
 
+import com.lucianoribeiro.helpdesk.model.UserPermission;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,9 +15,15 @@ public class UserPermissionDTO {
     private boolean canManagerReports;
     private boolean canManageUsers;
 
-    public static UserPermissionDTO from(boolean canCreateTicket, boolean canEditTicket, boolean canAssignTicket,
-                                          boolean canCloseTicket, boolean canManagerReports, boolean canManageUsers) {
-        return new UserPermissionDTO(canCreateTicket, canEditTicket, canAssignTicket, canCloseTicket, canManagerReports, canManageUsers);
+    public static UserPermissionDTO from(UserPermission userPermission) {
+        return new UserPermissionDTO(
+                userPermission.isCanCreateTicket(),
+                userPermission.isCanEditTicket(),
+                userPermission.isCanAssignTicket(),
+                userPermission.isCanCloseTicket(),
+                userPermission.isCanManagerReports(),
+                userPermission.isCanManageUsers()
+        );
     }
 
 }

@@ -4,25 +4,22 @@ import com.lucianoribeiro.helpdesk.dto.*;
 import com.lucianoribeiro.helpdesk.enums.UserTypeEnum;
 import com.lucianoribeiro.helpdesk.model.User;
 import com.lucianoribeiro.helpdesk.model.UserPermission;
-import com.lucianoribeiro.helpdesk.model.UserStatus;
 import com.lucianoribeiro.helpdesk.model.UserType;
 import com.lucianoribeiro.helpdesk.repository.UserPermissionRepository;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
-import com.lucianoribeiro.helpdesk.repository.UserStatusRepository;
 import com.lucianoribeiro.helpdesk.repository.UserTypeRepository;
 import com.lucianoribeiro.helpdesk.config.JwtUtil;
+import com.lucianoribeiro.helpdesk.service.exception.ObjectInvalidPasswordException;
+import com.lucianoribeiro.helpdesk.service.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final UserTypeRepository typeRepository;
-    private final UserStatusRepository statusRepository;
     private final UserPermissionRepository userPermissionRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -57,29 +54,23 @@ public class UserService {
 
     public AuthResponseDTO login(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não cadastrado."));
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-            throw new RuntimeException("Senha inválida");
+            throw new ObjectInvalidPasswordException("Senha inválida");
         }
 
         String token = JwtUtil.generateToken(user.getEmail());
+
         UserPermission userPermission = userPermissionRepository.findByUserTypeId(user.getType().getId());
 
-        return AuthResponseDTO.from(
-                token,
-                UserBasicInfoDTO.from(
-                        user.getId(),
-                        user.getName(),
-                        UserTypeEnum.fromId(user.getType().getId()),
-                        UserPermissionDTO.from(
-                                userPermission.isCanCreateTicket(),
-                                userPermission.isCanEditTicket(),
-                                userPermission.isCanAssignTicket(),
-                                userPermission.isCanCloseTicket(),
-                                userPermission.isCanManagerReports(),
-                                userPermission.isCanManageUsers()
-                        )
-                ));
+        UserBasicInfoDTO userBasicInfo = UserBasicInfoDTO.from(
+                user.getId(),
+                user.getName(),
+                UserTypeEnum.fromId(user.getType().getId()),
+                UserPermissionDTO.from(userPermission)
+        );
+
+        return AuthResponseDTO.from(token, userBasicInfo);
     }
 }

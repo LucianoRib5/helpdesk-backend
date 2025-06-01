@@ -1,5 +1,6 @@
 package com.lucianoribeiro.helpdesk.exception;
 
+import com.lucianoribeiro.helpdesk.service.exception.ObjectInvalidPasswordException;
 import com.lucianoribeiro.helpdesk.service.exception.ObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,19 @@ public class ResourceExceptionHandler {
                 System.currentTimeMillis(),
                 status.value(),
                 "Não encontrado",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(ObjectInvalidPasswordException.class)
+    public ResponseEntity<StandardError> objInvalidPassword(ObjectInvalidPasswordException e, HttpServletRequest request){
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError error = new StandardError(
+                System.currentTimeMillis(),
+                status.value(),
+                "Senha inválida",
                 e.getMessage(),
                 request.getRequestURI()
         );
