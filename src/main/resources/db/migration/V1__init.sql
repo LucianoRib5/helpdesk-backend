@@ -32,7 +32,7 @@ INSERT INTO technicians_status (description) VALUES
 CREATE TABLE states (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
-    abbreviation VARCHAR(2) NOT NULL
+    abbreviation VARCHAR(2) NOT NULL UNIQUE
 );
 
 INSERT INTO states (name, abbreviation) VALUES
@@ -68,37 +68,38 @@ CREATE TABLE cities (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     state_id INT NOT NULL,
+    cep VARCHAR(10) NOT NULL UNIQUE,
     FOREIGN KEY (state_id) REFERENCES states(id)
 );
 
-INSERT INTO cities (name, state_id) VALUES
-('Rio Branco', 1),
-('Maceió', 2),
-('Macapá', 3),
-('Manaus', 4),
-('Salvador', 5),
-('Fortaleza', 6),
-('Brasília', 7),
-('Vitória', 8),
-('Goiânia', 9),
-('São Luís', 10),
-('Cuiabá', 11),
-('Campo Grande', 12),
-('Belo Horizonte', 13),
-('Belém', 14),
-('João Pessoa', 15),
-('Curitiba', 16),
-('Recife', 17),
-('Teresina', 18),
-('Rio de Janeiro', 19),
-('Natal', 20),
-('Porto Alegre', 21),
-('Porto Velho', 22),
-('Boa Vista', 23),
-('Florianópolis', 24),
-('São Paulo', 25),
-('Aracaju', 26),
-('Palmas', 27);
+INSERT INTO cities (name, state_id, cep) VALUES
+('Rio Branco', 1, '69900-000'),
+('Maceió', 2, '57000-000'),
+('Macapá', 3, '68900-000'),
+('Manaus', 4, '69000-000'),
+('Salvador', 5, '40000-000'),
+('Fortaleza', 6, '60000-000'),
+('Brasília', 7, '70000-000'),
+('Vitória', 8, '29000-000'),
+('Goiânia', 9, '74000-000'),
+('São Luís', 10, '65000-000'),
+('Cuiabá', 11, '78000-000'),
+('Campo Grande', 12, '79000-000'),
+('Belo Horizonte', 13, '30000-000'),
+('Belém', 14, '66000-000'),
+('João Pessoa', 15, '58000-000'),
+('Curitiba', 16, '80000-000'),
+('Recife', 17, '50000-000'),
+('Teresina', 18, '64000-000'),
+('Rio de Janeiro', 19, '20000-000'),
+('Natal', 20, '59000-000'),
+('Porto Alegre', 21, '90000-000'),
+('Porto Velho', 22, '76800-000'),
+('Boa Vista', 23, '69300-000'),
+('Florianópolis', 24, '88000-000'),
+('São Paulo', 25, '01000-000'),
+('Aracaju', 26, '49000-000'),
+('Palmas', 27, '77000-000');
 
 CREATE TABLE ticket_status (
     id INT PRIMARY KEY AUTO_INCREMENT,
