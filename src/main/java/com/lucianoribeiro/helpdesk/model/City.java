@@ -26,4 +26,6 @@ public class City {
     @JoinColumn(name = "state_id")
     private State state;
 
+    @Column(name = "cep")
+    private String cep;
 }
