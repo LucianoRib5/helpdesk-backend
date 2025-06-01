@@ -2,9 +2,11 @@ package com.lucianoribeiro.helpdesk.service;
 
 import com.lucianoribeiro.helpdesk.dto.*;
 import com.lucianoribeiro.helpdesk.enums.UserTypeEnum;
+import com.lucianoribeiro.helpdesk.model.City;
 import com.lucianoribeiro.helpdesk.model.User;
 import com.lucianoribeiro.helpdesk.model.UserPermission;
 import com.lucianoribeiro.helpdesk.model.UserType;
+import com.lucianoribeiro.helpdesk.repository.CityRepository;
 import com.lucianoribeiro.helpdesk.repository.UserPermissionRepository;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
 import com.lucianoribeiro.helpdesk.repository.UserTypeRepository;
@@ -22,10 +24,12 @@ public class UserService {
     private final UserTypeRepository typeRepository;
     private final UserPermissionRepository userPermissionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CityRepository cityRepository;
+    private final CustomerService customerService;
 
     public User createUser(UserRequestDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("Email já cadastrado.");
+            throw new IllegalArgumentException("E-mail já cadastrado.");
         }
 
         if (userRepository.existsByCpf(dto.getCpf())) {
@@ -44,12 +48,21 @@ public class UserService {
 
         if (dto.getTypeId() != null) {
             userType = typeRepository.findById(dto.getTypeId())
-                    .orElseThrow(() -> new RuntimeException("Tipo de usuário não encontrado"));
+                    .orElseThrow(() -> new ObjectNotFoundException("Tipo de usuário não encontrado"));
         }
 
         User user = User.from(dto, passwordEncoder, userType);
 
-        return userRepository.save(user);
+        City city = cityRepository.findById(dto.getCityId())
+                .orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada"));
+
+        userRepository.save(user);
+
+        if (user.getType().getId() == UserTypeEnum.CUSTOMER.getId()) {
+            customerService.create(user, dto.getAddress(), city);
+        }
+
+        return user;
     }
 
     public AuthResponseDTO login(String email, String rawPassword) {
