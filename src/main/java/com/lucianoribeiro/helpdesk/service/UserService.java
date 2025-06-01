@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -26,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final CityRepository cityRepository;
     private final CustomerService customerService;
+    private final TechnicianService technicianService;
 
     public User createUser(UserRequestDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -44,22 +47,26 @@ public class UserService {
             throw new IllegalArgumentException("Telefone já cadastrado.");
         }
 
-        UserType userType = null;
-
-        if (dto.getTypeId() != null) {
-            userType = typeRepository.findById(dto.getTypeId())
-                    .orElseThrow(() -> new ObjectNotFoundException("Tipo de usuário não encontrado"));
-        }
+        UserType userType = Optional.ofNullable(dto.getTypeId())
+                .map(id -> typeRepository.findById(id)
+                        .orElseThrow(() -> new ObjectNotFoundException("Tipo de usuário não encontrado")))
+                .orElse(null);
 
         User user = User.from(dto, passwordEncoder, userType);
 
-        City city = cityRepository.findById(dto.getCityId())
-                .orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada"));
+        City city = Optional.ofNullable(dto.getCityId())
+                .map(id -> cityRepository.findById(id)
+                        .orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada")))
+                .orElse(null);
 
         userRepository.save(user);
 
         if (user.getType().getId() == UserTypeEnum.CUSTOMER.getId()) {
             customerService.create(user, dto.getAddress(), city);
+        }
+
+        if (user.getType().getId() == UserTypeEnum.TECHNICIAN.getId()) {
+            technicianService.create(user);
         }
 
         return user;
