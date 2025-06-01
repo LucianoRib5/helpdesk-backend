@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class TicketResponseDTO {
 
     private Long id;
-    private Long CustomerId;
-    private Long TechnicianId;
+    private Long customerId;
+    private String responsible;
     private String title;
     private String description;
     private Integer statusId;
@@ -35,7 +35,7 @@ public class TicketResponseDTO {
         return new TicketResponseDTO(
                 ticket.getId(),
                 ticket.getCustomer() != null ? ticket.getCustomer().getId() : null,
-                ticket.getTechnician() != null ? ticket.getTechnician().getId() : null,
+                ticket.getTechnician() != null ? ticket.getTechnician().getUser().getName() : null,
                 ticket.getTitle(),
                 ticket.getDescription(),
                 ticket.getTicketStatusId(),

@@ -31,7 +31,7 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "technician_id")
-    private User technician;
+    private Technician technician;
 
     private String title;
     private String description;
