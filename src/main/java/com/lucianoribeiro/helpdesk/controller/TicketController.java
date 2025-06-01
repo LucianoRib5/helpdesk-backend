@@ -5,6 +5,10 @@ import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
 import com.lucianoribeiro.helpdesk.service.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +35,20 @@ public class TicketController {
     }
 
     @GetMapping
-    public ResponseEntity<ArrayList<TicketResponseDTO>> getAllTickets() {
-        ArrayList<TicketResponseDTO> tickets = ticketService.getAllTickets();
-        return new ResponseEntity<>(tickets, HttpStatus.OK);
+    public ResponseEntity<Page<TicketResponseDTO>> getAllTickets(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Integer priority,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<TicketResponseDTO> result = ticketService.getAllTickets(title, status, priority, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{ticketId}")

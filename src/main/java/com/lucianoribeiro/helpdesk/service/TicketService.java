@@ -8,7 +8,11 @@ import com.lucianoribeiro.helpdesk.model.*;
 import com.lucianoribeiro.helpdesk.repository.CustomerRepository;
 import com.lucianoribeiro.helpdesk.repository.TicketRepository;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
+import com.lucianoribeiro.helpdesk.specifications.TicketSpecifications;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -66,11 +70,14 @@ public class TicketService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<TicketResponseDTO> getAllTickets() {
-        ArrayList<Ticket> tickets = (ArrayList<Ticket>) ticketRepository.findAll();
-        return tickets.stream()
-                .map(TicketResponseDTO::from)
-                .collect(Collectors.toCollection(ArrayList::new));
+    public Page<TicketResponseDTO> getAllTickets(String title, Integer status, Integer priority, Pageable pageable) {
+        Specification<Ticket> spec = Specification
+                .where(TicketSpecifications.hasTitle(title))
+                .and(TicketSpecifications.hasStatus(status))
+                .and(TicketSpecifications.hasPriority(priority));
+
+        return ticketRepository.findAll(spec, pageable)
+                .map(TicketResponseDTO::from);
     }
 
     public TicketResponseDTO getTicketById(Long ticketId) {
