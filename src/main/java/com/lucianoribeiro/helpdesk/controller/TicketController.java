@@ -66,5 +66,4 @@ public class TicketController {
         TicketResponseDTO ticket = ticketService.getTicketById(ticketId);
         return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
-
 }

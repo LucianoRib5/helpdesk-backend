@@ -25,7 +25,7 @@ public class ResourceExceptionHandler {
 
     @ExceptionHandler(ObjectInvalidPasswordException.class)
     public ResponseEntity<StandardError> objInvalidPassword(ObjectInvalidPasswordException e, HttpServletRequest request){
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         StandardError error = new StandardError(
                 System.currentTimeMillis(),
                 status.value(),

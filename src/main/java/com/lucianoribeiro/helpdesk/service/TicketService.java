@@ -8,12 +8,15 @@ import com.lucianoribeiro.helpdesk.model.*;
 import com.lucianoribeiro.helpdesk.repository.CustomerRepository;
 import com.lucianoribeiro.helpdesk.repository.TicketRepository;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
+import com.lucianoribeiro.helpdesk.service.exception.ObjectNotFoundException;
 import com.lucianoribeiro.helpdesk.specifications.TicketSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 @Service
@@ -26,22 +29,22 @@ public class TicketService {
 
     public TicketResponseDTO createTicket(TicketRequestDTO ticketRequestDTO) {
         if (ticketRequestDTO.getCustomerId() == null) {
-            throw new IllegalArgumentException("Customer ID is required.");
+            throw new IllegalArgumentException("ID do cliente é obrigatório");
         }
 
         if (ticketRequestDTO.getTitle() == null || ticketRequestDTO.getTitle().isEmpty()) {
-            throw new IllegalArgumentException("Title is required.");
+            throw new IllegalArgumentException("Título é obrigatório");
         }
 
         if (ticketRequestDTO.getDescription() == null || ticketRequestDTO.getDescription().isEmpty()) {
-            throw new IllegalArgumentException("Description is required.");
+            throw new IllegalArgumentException("Descrição é obrigatória");
         }
 
         Customer customer = customerRepository.findById(ticketRequestDTO.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));
 
         User createdBy = userRepository.findById(ticketRequestDTO.getCreatedById())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário criador não encontrado"));
 
         TicketStatus status = new TicketStatus();
         status.setTicketStatusEnum(TicketStatusEnum.OPEN);
@@ -89,12 +92,8 @@ public class TicketService {
     }
 
     public TicketResponseDTO getTicketById(Long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElse(null);
-        if (ticket == null) {
-            throw new RuntimeException("Ticket not found");
-        }
-        return TicketResponseDTO.from(ticket);
+        Optional<Ticket> ticket = ticketRepository.findById(ticketId);
+        return ticket.map(TicketResponseDTO::from)
+                .orElseThrow(() -> new ObjectNotFoundException("Ticket não encontrado com o ID: " + ticketId));
     }
-
 }
