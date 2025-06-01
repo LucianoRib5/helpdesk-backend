@@ -59,6 +59,16 @@ public class UserService {
                         .orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada")))
                 .orElse(null);
 
+        if (user.getType().getId() == UserTypeEnum.CUSTOMER.getId()) {
+            if (city == null) {
+                throw new ObjectNotFoundException("Cidade não encontrada para o cliente.");
+            }
+
+            if (dto.getAddress() == null || dto.getAddress().isEmpty()) {
+                throw new IllegalArgumentException("Endereço não pode ser vazio para o cliente.");
+            }
+        }
+
         userRepository.save(user);
 
         if (user.getType().getId() == UserTypeEnum.CUSTOMER.getId()) {
