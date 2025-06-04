@@ -7,13 +7,14 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TicketStatusEnum {
-    OPEN(1, "open"),
-    IN_PROGRESS(2, "in progress"),
-    AWAITING_EVALUATION(3, "awaiting evaluation"),
-    CLOSED(4, "closed");
+    OPEN(1, "open", "aberto"),
+    IN_PROGRESS(2, "in progress", "em andamento"),
+    AWAITING_EVALUATION(3, "awaiting evaluation", "aguardando avaliação"),
+    CLOSED(4, "closed", "fechado");
 
     private final int id;
     private final String description;
+    private final String translatedDescription;
 
     public static TicketStatusEnum fromId(int id) {
         for (TicketStatusEnum status : values()) {
@@ -40,3 +41,4 @@ public enum TicketStatusEnum {
         return ticketStatus;
     }
 }
+

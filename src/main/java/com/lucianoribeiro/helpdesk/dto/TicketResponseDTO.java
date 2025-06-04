@@ -31,7 +31,7 @@ public class TicketResponseDTO {
     private ArrayList<TicketCommentDTO> comments;
     private ArrayList<TicketUpdateDTO> updateHistory;
 
-    public static TicketResponseDTO from(Ticket ticket) {
+    public static TicketResponseDTO from(Ticket ticket, ArrayList<TicketUpdateDTO> updateHistory) {
         return new TicketResponseDTO(
                 ticket.getId(),
                 ticket.getCustomer() != null ? ticket.getCustomer().getId() : null,
@@ -55,20 +55,12 @@ public class TicketResponseDTO {
                             return dto;
                         })
                         .collect(Collectors.toCollection(ArrayList::new)) : new ArrayList<>(),
-                ticket.getUpdateHistory() != null ? ticket.getUpdateHistory().stream()
-                        .filter(update -> update.getUpdateType().getId() != TicketUpdateTypeEnum.COMMENT_ADDED.getId())
-                        .map(update -> {
-                            TicketUpdateDTO dto = new TicketUpdateDTO();
-                            dto.setId(update.getId());
-                            dto.setUserName(update.getUpdatedBy() != null ? update.getUpdatedBy().getName() : null);
-                            dto.setUpdateTypeId(update.getUpdateType().getId());
-                            dto.setOldValue(update.getOldValue());
-                            dto.setNewValue(update.getNewValue());
-                            dto.setUpdateAt(update.getUpdatedAt());
-                            return dto;
-                        })
-                        .collect(Collectors.toCollection(ArrayList::new)) : new ArrayList<>()
+                updateHistory != null ? updateHistory : new ArrayList<>()
         );
+    }
+
+    public static TicketResponseDTO from(Ticket ticket) {
+        return from(ticket, new ArrayList<>());
     }
 
 }

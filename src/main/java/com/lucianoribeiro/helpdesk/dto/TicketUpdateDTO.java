@@ -1,19 +1,18 @@
 package com.lucianoribeiro.helpdesk.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TicketUpdateDTO {
 
-    private Long id;
-    private String userName;
-    private Integer updateTypeId;
-    private String oldValue;
-    private String newValue;
-    private LocalDateTime updateAt;
-
+    private String message;
+    private LocalDateTime timestamp;
 }

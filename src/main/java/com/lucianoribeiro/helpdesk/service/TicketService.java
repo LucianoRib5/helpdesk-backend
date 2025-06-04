@@ -3,11 +3,13 @@ package com.lucianoribeiro.helpdesk.service;
 import com.lucianoribeiro.helpdesk.dto.CloseTicketDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
+import com.lucianoribeiro.helpdesk.dto.TicketUpdateDTO;
 import com.lucianoribeiro.helpdesk.enums.TicketPriorityEnum;
 import com.lucianoribeiro.helpdesk.enums.TicketStatusEnum;
 import com.lucianoribeiro.helpdesk.model.*;
 import com.lucianoribeiro.helpdesk.repository.CustomerRepository;
 import com.lucianoribeiro.helpdesk.repository.TicketRepository;
+import com.lucianoribeiro.helpdesk.repository.TicketUpdateHistoryRepository;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
 import com.lucianoribeiro.helpdesk.service.exception.ObjectNotFoundException;
 import com.lucianoribeiro.helpdesk.specifications.TicketSpecifications;
@@ -17,7 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.lucianoribeiro.helpdesk.service.TicketHistoryMessageBuilder.buildHistoryMessage;
 
 
 @Service
@@ -27,6 +32,8 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
+    private final TicketUpdateHistoryRepository ticketUpdateHistoryRepository;
+    private final TicketHistoryService ticketHistoryService;
 
     public TicketResponseDTO createTicket(TicketRequestDTO ticketRequestDTO) {
         if (ticketRequestDTO.getCustomerId() == null) {
@@ -93,9 +100,12 @@ public class TicketService {
     }
 
     public TicketResponseDTO getTicketById(Long ticketId) {
-        Optional<Ticket> ticket = ticketRepository.findById(ticketId);
-        return ticket.map(TicketResponseDTO::from)
+        Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new ObjectNotFoundException("Ticket não encontrado com o ID: " + ticketId));
+
+        ArrayList<TicketUpdateDTO> updateHistory = buildUpdateHistory(ticketId);
+
+        return TicketResponseDTO.from(ticket, updateHistory);
     }
 
     public TicketResponseDTO closeTicket(Long ticketId, CloseTicketDTO dto) {
@@ -111,6 +121,32 @@ public class TicketService {
         ticket.setStatus(TicketStatusEnum.toTicketStatus(TicketStatusEnum.CLOSED));
 
         Ticket updatedTicket = ticketRepository.save(ticket);
-        return TicketResponseDTO.from(updatedTicket);
+
+        ticketHistoryService.logChange(
+                ticket,
+                ticket.getCustomer().getUser(),
+                "status change",
+                TicketStatusEnum.AWAITING_EVALUATION.getTranslatedDescription(),
+                TicketStatusEnum.CLOSED.getTranslatedDescription(),
+                null
+        );
+
+        ArrayList<TicketUpdateDTO> updateHistory = buildUpdateHistory(ticketId);
+
+        return TicketResponseDTO.from(updatedTicket, updateHistory);
+    }
+
+    public ArrayList<TicketUpdateDTO> buildUpdateHistory(Long ticketId) {
+        List<TicketUpdateHistory> historyList = ticketUpdateHistoryRepository
+                .findByTicketIdOrderByUpdatedAtDesc(ticketId);
+
+        ArrayList<TicketUpdateDTO> updateDTOs = new ArrayList<>();
+
+        for (TicketUpdateHistory h : historyList) {
+            String message = buildHistoryMessage(h);
+            updateDTOs.add(new TicketUpdateDTO(message, h.getUpdatedAt()));
+        }
+
+        return updateDTOs;
     }
 }
