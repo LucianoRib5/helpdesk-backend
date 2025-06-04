@@ -1,5 +1,6 @@
 package com.lucianoribeiro.helpdesk.controller;
 
+import com.lucianoribeiro.helpdesk.dto.CloseTicketDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
 import com.lucianoribeiro.helpdesk.service.TicketService;
@@ -62,8 +63,17 @@ public class TicketController {
     }
 
     @GetMapping("/{ticketId}")
-    public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable("ticketId") Long ticketId) {
+    public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable Long ticketId) {
         TicketResponseDTO ticket = ticketService.getTicketById(ticketId);
         return new ResponseEntity<>(ticket, HttpStatus.OK);
+    }
+
+    @PutMapping("/{ticketId}/close")
+    public ResponseEntity<TicketResponseDTO> closeTicket(
+            @PathVariable Long ticketId,
+            @RequestBody CloseTicketDTO dto
+    ) {
+        TicketResponseDTO closedTicket = ticketService.closeTicket(ticketId, dto);
+        return new ResponseEntity<>(closedTicket, HttpStatus.OK);
     }
 }

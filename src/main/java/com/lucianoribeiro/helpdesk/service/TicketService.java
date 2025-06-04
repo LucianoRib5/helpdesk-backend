@@ -1,5 +1,6 @@
 package com.lucianoribeiro.helpdesk.service;
 
+import com.lucianoribeiro.helpdesk.dto.CloseTicketDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
 import com.lucianoribeiro.helpdesk.enums.TicketPriorityEnum;
@@ -95,5 +96,21 @@ public class TicketService {
         Optional<Ticket> ticket = ticketRepository.findById(ticketId);
         return ticket.map(TicketResponseDTO::from)
                 .orElseThrow(() -> new ObjectNotFoundException("Ticket não encontrado com o ID: " + ticketId));
+    }
+
+    public TicketResponseDTO closeTicket(Long ticketId, CloseTicketDTO dto) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ObjectNotFoundException("Ticket não encontrado com o ID: " + ticketId));
+
+        if (ticket.getTicketStatusId() != TicketStatusEnum.AWAITING_EVALUATION.getId()) {
+            throw new IllegalStateException("O ticket não está no status de Aguardando Avaliação");
+        }
+
+        ticket.setRating(dto.getRating());
+        ticket.setRatingComment(dto.getRatingComment());
+        ticket.setStatus(TicketStatusEnum.toTicketStatus(TicketStatusEnum.CLOSED));
+
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return TicketResponseDTO.from(updatedTicket);
     }
 }

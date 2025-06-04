@@ -1,5 +1,6 @@
 package com.lucianoribeiro.helpdesk.enums;
 
+import com.lucianoribeiro.helpdesk.model.TicketStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -30,5 +31,12 @@ public enum TicketStatusEnum {
             }
         }
         throw new IllegalArgumentException("Invalid TicketStatus description: " + description);
+    }
+
+    public static TicketStatus toTicketStatus(TicketStatusEnum statusEnum) {
+        TicketStatus ticketStatus = new TicketStatus();
+        ticketStatus.setId(statusEnum.getId());
+        ticketStatus.setDescription(statusEnum.getDescription());
+        return ticketStatus;
     }
 }
