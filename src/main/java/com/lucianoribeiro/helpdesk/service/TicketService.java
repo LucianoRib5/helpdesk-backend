@@ -1,9 +1,6 @@
 package com.lucianoribeiro.helpdesk.service;
 
-import com.lucianoribeiro.helpdesk.dto.CloseTicketDTO;
-import com.lucianoribeiro.helpdesk.dto.TicketRequestDTO;
-import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
-import com.lucianoribeiro.helpdesk.dto.TicketUpdateDTO;
+import com.lucianoribeiro.helpdesk.dto.*;
 import com.lucianoribeiro.helpdesk.enums.TicketPriorityEnum;
 import com.lucianoribeiro.helpdesk.enums.TicketStatusEnum;
 import com.lucianoribeiro.helpdesk.model.*;
@@ -134,6 +131,23 @@ public class TicketService {
         ArrayList<TicketUpdateDTO> updateHistory = buildUpdateHistory(ticketId);
 
         return TicketResponseDTO.from(updatedTicket, updateHistory);
+    }
+
+    public void addComment(Long ticketId, CommetDTO comment) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ObjectNotFoundException("Ticket não encontrado com o ID: " + ticketId));
+
+        User user = userRepository.findById(comment.getUserId())
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + comment.getUserId()));
+
+        ticketHistoryService.logChange(
+                ticket,
+                user,
+                "comment added",
+                null,
+                null,
+                comment.getComment()
+        );
     }
 
     public ArrayList<TicketUpdateDTO> buildUpdateHistory(Long ticketId) {

@@ -14,7 +14,7 @@ public class TicketHistoryMessageBuilder {
             case "technician assignment":
                 return "Técnico " + h.getNewValue() + " atribuído ao chamado.";
             case "comment added":
-                return h.getComment();
+                return h.getUpdatedBy().getName() + " adicionou um comentário" + ".";
             default:
                 return "Atualização desconhecida.";
         }

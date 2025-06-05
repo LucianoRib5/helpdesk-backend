@@ -1,6 +1,7 @@
 package com.lucianoribeiro.helpdesk.controller;
 
 import com.lucianoribeiro.helpdesk.dto.CloseTicketDTO;
+import com.lucianoribeiro.helpdesk.dto.CommetDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketRequestDTO;
 import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
 import com.lucianoribeiro.helpdesk.service.TicketService;
@@ -75,5 +76,14 @@ public class TicketController {
     ) {
         TicketResponseDTO closedTicket = ticketService.closeTicket(ticketId, dto);
         return new ResponseEntity<>(closedTicket, HttpStatus.OK);
+    }
+
+    @PostMapping("/{ticketId}/add-comment")
+    public ResponseEntity<Void> addComment(
+            @PathVariable Long ticketId,
+            @RequestBody CommetDTO commentDTO
+    ) {
+        ticketService.addComment(ticketId, commentDTO);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
