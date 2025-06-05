@@ -8,11 +8,11 @@ public class TicketHistoryMessageBuilder {
     public static String buildHistoryMessage(TicketUpdateHistory h) {
         switch (h.getUpdateType().getDescription()) {
             case "priority change":
-                return "O chamado foi marcado como " + formatPriority(h.getNewValue()) + ".";
+                return h.getUpdatedBy().getName() + " marcou o chamado como prioridade " + formatPriority(h.getNewValue()) + ".";
             case "status change":
-                return "Status alterado de " + h.getOldValue() + " para " + h.getNewValue() + ".";
+                return h.getUpdatedBy().getName() + " alterou o status de " + h.getOldValue() + " para " + h.getNewValue() + ".";
             case "technician assignment":
-                return "Técnico " + h.getNewValue() + " atribuído ao chamado.";
+                return h.getUpdatedBy().getName() + " atribui o técnico " + h.getNewValue() + " ao chamado.";
             case "comment added":
                 return h.getUpdatedBy().getName() + " adicionou um comentário" + ".";
             default:
