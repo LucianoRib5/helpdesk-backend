@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.lucianoribeiro.helpdesk.enums.TicketStatusEnum.toTicketStatus;
 import static com.lucianoribeiro.helpdesk.service.TicketHistoryMessageBuilder.buildHistoryMessage;
 
 
@@ -115,7 +116,7 @@ public class TicketService {
 
         ticket.setRating(dto.getRating());
         ticket.setRatingComment(dto.getRatingComment());
-        ticket.setStatus(TicketStatusEnum.toTicketStatus(TicketStatusEnum.CLOSED));
+        ticket.setStatus(toTicketStatus(TicketStatusEnum.CLOSED));
 
         Ticket updatedTicket = ticketRepository.save(ticket);
 
@@ -147,6 +148,31 @@ public class TicketService {
                 null,
                 null,
                 comment.getComment()
+        );
+    }
+
+    public void changeStatus(Long ticketId, ChangeTicketStatusDTO dto) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ObjectNotFoundException("Ticket não encontrado com o ID: " + ticketId));
+
+        User updatedBy = userRepository.findById(dto.getUpdatedById())
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o ID: " + dto.getUpdatedById()));
+
+        final TicketStatus oldStatus = ticket.getStatus();
+
+        TicketStatus newStatus = toTicketStatus(TicketStatusEnum.fromId(dto.getStatusId()));
+
+        ticket.setStatus(newStatus);
+
+        ticketRepository.save(ticket);
+
+        ticketHistoryService.logChange(
+                ticket,
+                updatedBy,
+                "status change",
+                TicketStatusEnum.fromId(oldStatus.getId()).getTranslatedDescription(),
+                TicketStatusEnum.fromId(newStatus.getId()).getTranslatedDescription(),
+                null
         );
     }
 

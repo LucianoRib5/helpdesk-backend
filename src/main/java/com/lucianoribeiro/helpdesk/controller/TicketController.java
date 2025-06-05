@@ -1,9 +1,6 @@
 package com.lucianoribeiro.helpdesk.controller;
 
-import com.lucianoribeiro.helpdesk.dto.CloseTicketDTO;
-import com.lucianoribeiro.helpdesk.dto.CommetDTO;
-import com.lucianoribeiro.helpdesk.dto.TicketRequestDTO;
-import com.lucianoribeiro.helpdesk.dto.TicketResponseDTO;
+import com.lucianoribeiro.helpdesk.dto.*;
 import com.lucianoribeiro.helpdesk.service.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +81,15 @@ public class TicketController {
             @RequestBody CommetDTO commentDTO
     ) {
         ticketService.addComment(ticketId, commentDTO);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{ticketId}/change-status")
+    public ResponseEntity<Void> changeTicketStatus(
+            @PathVariable Long ticketId,
+            @RequestBody ChangeTicketStatusDTO dto
+    ) {
+        ticketService.changeStatus(ticketId, dto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
