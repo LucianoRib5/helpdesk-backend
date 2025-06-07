@@ -1,9 +1,6 @@
 package com.lucianoribeiro.helpdesk.controller;
 
-import com.lucianoribeiro.helpdesk.dto.AuthRequestDTO;
-import com.lucianoribeiro.helpdesk.dto.AuthResponseDTO;
-import com.lucianoribeiro.helpdesk.dto.UpdateEmailDTO;
-import com.lucianoribeiro.helpdesk.dto.UserRequestDTO;
+import com.lucianoribeiro.helpdesk.dto.*;
 import com.lucianoribeiro.helpdesk.model.User;
 import com.lucianoribeiro.helpdesk.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +47,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}/password")
-    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody String newPassword) {
-        userService.updatePassword(id, newPassword);
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody UpdatePasswordDTO request) {
+        userService.updatePassword(id, request.getNewPassword());
         return ResponseEntity.noContent().build();
     }
 
