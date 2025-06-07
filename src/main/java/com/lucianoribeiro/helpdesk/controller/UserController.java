@@ -7,10 +7,7 @@ import com.lucianoribeiro.helpdesk.model.User;
 import com.lucianoribeiro.helpdesk.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -25,6 +22,12 @@ public class UserController {
         User createdUser = userService.createUser(dto);
         URI location = URI.create("/users/" + createdUser.getId());
         return ResponseEntity.created(location).build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserRequestDTO dto) {
+        userService.updateUser(id, dto);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")

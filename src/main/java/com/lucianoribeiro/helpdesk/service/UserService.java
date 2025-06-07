@@ -82,6 +82,55 @@ public class UserService {
         return user;
     }
 
+    public void updateUser(Long id, UserRequestDTO dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
+
+        if (dto.getName() != null && !dto.getName().isEmpty()) {
+            user.setName(dto.getName());
+        }
+
+        if (dto.getEmail() != null && !dto.getEmail().isEmpty()) {
+            if (!dto.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(dto.getEmail())) {
+                throw new IllegalArgumentException("E-mail já cadastrado.");
+            }
+            user.setEmail(dto.getEmail());
+        }
+
+        if (dto.getCpf() != null && !dto.getCpf().isEmpty()) {
+            if (!dto.getCpf().equals(user.getCpf()) && userRepository.existsByCpf(dto.getCpf())) {
+                throw new IllegalArgumentException("CPF já cadastrado.");
+            }
+            user.setCpf(dto.getCpf());
+        }
+
+        if (dto.getCnpj() != null && !dto.getCnpj().isEmpty()) {
+            if (!dto.getCnpj().equals(user.getCnpj()) && userRepository.existsByCnpj(dto.getCnpj())) {
+                throw new IllegalArgumentException("CNPJ já cadastrado.");
+            }
+            user.setCnpj(dto.getCnpj());
+        }
+
+        if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().isEmpty()) {
+            if (!dto.getPhoneNumber().equals(user.getPhoneNumber()) && userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+                throw new IllegalArgumentException("Telefone já cadastrado.");
+            }
+            user.setPhoneNumber(dto.getPhoneNumber());
+        }
+
+        if (dto.getTypeId() != null) {
+            UserType newUserType = typeRepository.findById(dto.getTypeId())
+                    .orElseThrow(() -> new ObjectNotFoundException("Tipo de usuário não encontrado"));
+            user.setType(newUserType);
+        }
+
+        if(user.getType().getId() == UserTypeEnum.CUSTOMER.getId()) {
+            customerService.update(user.getId(), dto.getAddress(), dto.getCityId());
+        }
+
+        userRepository.save(user);
+    }
+
     public AuthResponseDTO login(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não cadastrado."));

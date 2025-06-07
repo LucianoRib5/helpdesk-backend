@@ -4,6 +4,7 @@ import com.lucianoribeiro.helpdesk.dto.CustomerDTO;
 import com.lucianoribeiro.helpdesk.model.City;
 import com.lucianoribeiro.helpdesk.model.Customer;
 import com.lucianoribeiro.helpdesk.model.User;
+import com.lucianoribeiro.helpdesk.repository.CityRepository;
 import com.lucianoribeiro.helpdesk.repository.CustomerRepository;
 import com.lucianoribeiro.helpdesk.service.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CityRepository cityRepository;
 
     public List<CustomerDTO> findAll() {
         return customerRepository.findAll()
@@ -35,6 +37,23 @@ public class CustomerService {
         customer.setUser(user);
         customer.setAddress(address);
         customer.setCity(city);
+        customerRepository.save(customer);
+    }
+
+    public void update(Long userId, String address, Integer cityId) {
+        Customer customer = findByUserId(userId);
+
+        if (address != null && !address.isEmpty()) {
+            customer.setAddress(address);
+        }
+
+        if (cityId != null && cityId > 0) {
+            City city = cityRepository.findById(cityId)
+                    .orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada com o ID: " + cityId));
+
+            customer.setCity(city);
+        }
+
         customerRepository.save(customer);
     }
 }
