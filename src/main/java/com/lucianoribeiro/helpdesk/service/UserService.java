@@ -1,11 +1,9 @@
 package com.lucianoribeiro.helpdesk.service;
 
 import com.lucianoribeiro.helpdesk.dto.*;
+import com.lucianoribeiro.helpdesk.enums.UserStatusEnum;
 import com.lucianoribeiro.helpdesk.enums.UserTypeEnum;
-import com.lucianoribeiro.helpdesk.model.City;
-import com.lucianoribeiro.helpdesk.model.User;
-import com.lucianoribeiro.helpdesk.model.UserPermission;
-import com.lucianoribeiro.helpdesk.model.UserType;
+import com.lucianoribeiro.helpdesk.model.*;
 import com.lucianoribeiro.helpdesk.repository.CityRepository;
 import com.lucianoribeiro.helpdesk.repository.UserPermissionRepository;
 import com.lucianoribeiro.helpdesk.repository.UserRepository;
@@ -151,5 +149,16 @@ public class UserService {
         );
 
         return AuthResponseDTO.from(token, userBasicInfo);
+    }
+
+    public void inactivateUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
+
+        UserStatus inactiveStatus = new UserStatus();
+        inactiveStatus.setId(UserStatusEnum.INACTIVE.getId());
+        inactiveStatus.setDescription(UserStatusEnum.INACTIVE.getDescription());
+        user.setStatus(inactiveStatus);
+        userRepository.save(user);
     }
 }

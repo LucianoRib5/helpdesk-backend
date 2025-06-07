@@ -35,4 +35,10 @@ public class UserController {
         AuthResponseDTO response = userService.login(dto.getEmail(), dto.getPassword());
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> inactivateUser(@PathVariable Long id) {
+        userService.inactivateUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }
