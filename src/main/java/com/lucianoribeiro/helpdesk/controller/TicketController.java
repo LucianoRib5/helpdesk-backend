@@ -93,4 +93,13 @@ public class TicketController {
         ticketService.changeStatus(ticketId, dto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PutMapping("/{ticketId}")
+    public ResponseEntity<TicketResponseDTO> updateTicket(
+            @PathVariable Long ticketId,
+            @RequestBody TicketRequestDTO dto
+    ) {
+        TicketResponseDTO updatedTicket = ticketService.updateTicket(ticketId, dto);
+        return new ResponseEntity<>(updatedTicket, HttpStatus.OK);
+    }
 }

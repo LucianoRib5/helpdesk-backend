@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,5 +196,35 @@ public class TicketService {
         }
 
         return updateDTOs;
+    }
+
+    public TicketResponseDTO updateTicket(Long ticketId, TicketRequestDTO dto) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ObjectNotFoundException("Ticket não encontrado com o ID: " + ticketId));
+
+        if (dto.getTitle() != null && !dto.getTitle().isEmpty()) {
+            ticket.setTitle(dto.getTitle());
+        }
+
+        if (dto.getDescription() != null && !dto.getDescription().isEmpty()) {
+            ticket.setDescription(dto.getDescription());
+        }
+
+        if (dto.getPriorityId() != null) {
+            TicketPriority priority = new TicketPriority();
+            priority.setTicketPriorityEnum(TicketPriorityEnum.fromId(dto.getPriorityId()));
+            ticket.setPriority(priority);
+        }
+
+        if (dto.getCustomerId() != null) {
+            Customer customer = customerRepository.findById(dto.getCustomerId())
+                    .orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado com o ID: " + dto.getCustomerId()));
+            ticket.setCustomer(customer);
+        }
+
+        ticket.setUpdatedAt(LocalDateTime.now());
+
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return TicketResponseDTO.from(updatedTicket);
     }
 }
