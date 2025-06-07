@@ -166,4 +166,16 @@ public class UserService {
         return userRepository.findByName(name)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o nome de usuário: " + name));
     }
+
+    public void updatePassword(Long id, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("Nova senha não pode ser vazia.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 }
