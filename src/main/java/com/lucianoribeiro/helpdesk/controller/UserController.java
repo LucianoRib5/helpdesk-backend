@@ -17,6 +17,12 @@ import java.net.URI;
 public class UserController {
     private final UserService userService;
 
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO dto) {
+        AuthResponseDTO response = userService.login(dto.getEmail(), dto.getPassword());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody UserRequestDTO dto) {
         User createdUser = userService.createUser(dto);
@@ -30,15 +36,15 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO dto) {
-        AuthResponseDTO response = userService.login(dto.getEmail(), dto.getPassword());
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inactivateUser(@PathVariable Long id) {
         userService.inactivateUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<User> getUserByUserName(@RequestParam String name) {
+        User user = userService.findByUserName(name);
+        return ResponseEntity.ok(user);
     }
 }

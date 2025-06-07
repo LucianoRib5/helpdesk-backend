@@ -161,4 +161,9 @@ public class UserService {
         user.setStatus(inactiveStatus);
         userRepository.save(user);
     }
+
+    public User findByUserName(String name) {
+        return userRepository.findByName(name)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o nome de usuário: " + name));
+    }
 }
