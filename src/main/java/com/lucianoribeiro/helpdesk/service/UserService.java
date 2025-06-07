@@ -178,4 +178,20 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    public void updateEmail(Long id, String newEmail) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
+
+        if (newEmail == null || newEmail.isEmpty()) {
+            throw new IllegalArgumentException("Novo e-mail não pode ser vazio.");
+        }
+
+        if (!newEmail.equals(user.getEmail()) && userRepository.existsByEmail(newEmail)) {
+            throw new IllegalArgumentException("E-mail já cadastrado.");
+        }
+
+        user.setEmail(newEmail);
+        userRepository.save(user);
+    }
 }
