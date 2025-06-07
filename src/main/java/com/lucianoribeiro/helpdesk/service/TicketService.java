@@ -5,10 +5,7 @@ import com.lucianoribeiro.helpdesk.enums.TicketPriorityEnum;
 import com.lucianoribeiro.helpdesk.enums.TicketStatusEnum;
 import com.lucianoribeiro.helpdesk.enums.UserTypeEnum;
 import com.lucianoribeiro.helpdesk.model.*;
-import com.lucianoribeiro.helpdesk.repository.CustomerRepository;
-import com.lucianoribeiro.helpdesk.repository.TicketRepository;
-import com.lucianoribeiro.helpdesk.repository.TicketUpdateHistoryRepository;
-import com.lucianoribeiro.helpdesk.repository.UserRepository;
+import com.lucianoribeiro.helpdesk.repository.*;
 import com.lucianoribeiro.helpdesk.service.exception.ObjectNotFoundException;
 import com.lucianoribeiro.helpdesk.specifications.TicketSpecifications;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +31,7 @@ public class TicketService {
     private final UserRepository userRepository;
     private final TicketUpdateHistoryRepository ticketUpdateHistoryRepository;
     private final TicketHistoryService ticketHistoryService;
+    private final TechnicianRepository technicianRepository;
 
     public TicketResponseDTO createTicket(TicketRequestDTO ticketRequestDTO) {
         if (ticketRequestDTO.getCustomerId() == null) {
@@ -226,5 +224,17 @@ public class TicketService {
 
         Ticket updatedTicket = ticketRepository.save(ticket);
         return TicketResponseDTO.from(updatedTicket);
+    }
+
+    public void assignMultipleTickets(Long technicianId, AssignMultipleTicketsDTO dto) {
+        Technician technician = technicianRepository.findById(technicianId)
+                .orElseThrow(() -> new ObjectNotFoundException("Técnico não encontrado com o ID: " + technicianId));
+
+        List<Ticket> tickets = ticketRepository.findAllById(dto.getTicketIds());
+
+        for (Ticket ticket : tickets) {
+            ticket.setTechnician(technician);
+            ticketRepository.save(ticket);
+        }
     }
 }

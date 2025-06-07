@@ -102,4 +102,13 @@ public class TicketController {
         TicketResponseDTO updatedTicket = ticketService.updateTicket(ticketId, dto);
         return new ResponseEntity<>(updatedTicket, HttpStatus.OK);
     }
+
+    @PostMapping("/assign-to-technician/{technicianId}")
+    public ResponseEntity<Void> assignMultipleTickets(
+            @PathVariable Long technicianId,
+            @RequestBody AssignMultipleTicketsDTO dto
+    ) {
+        ticketService.assignMultipleTickets(technicianId, dto);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
