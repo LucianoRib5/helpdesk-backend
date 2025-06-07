@@ -25,9 +25,10 @@ public class TicketController {
         return new ResponseEntity<>(createdTicket, HttpStatus.CREATED);
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<Page<TicketResponseDTO>> getTicketsByCustomerId(
-            @PathVariable Long customerId,
+    @GetMapping("/by-user-role/{userRoleId}")
+    public ResponseEntity<Page<TicketResponseDTO>> getTicketsByUserRoleId(
+            @PathVariable Long userRoleId,
+            @RequestParam Integer userTypeId,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Integer status,
             @RequestParam(required = false) Integer priority,
@@ -39,7 +40,7 @@ public class TicketController {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<TicketResponseDTO> result = ticketService.getTicketsByCustomerId(customerId, title, status, priority, pageable);
+        Page<TicketResponseDTO> result = ticketService.getTicketsByUserRoleId(userRoleId, userTypeId, title, status, priority, pageable);
         return ResponseEntity.ok(result);
     }
 

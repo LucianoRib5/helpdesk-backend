@@ -3,6 +3,7 @@ package com.lucianoribeiro.helpdesk.service;
 import com.lucianoribeiro.helpdesk.dto.*;
 import com.lucianoribeiro.helpdesk.enums.TicketPriorityEnum;
 import com.lucianoribeiro.helpdesk.enums.TicketStatusEnum;
+import com.lucianoribeiro.helpdesk.enums.UserTypeEnum;
 import com.lucianoribeiro.helpdesk.model.*;
 import com.lucianoribeiro.helpdesk.repository.CustomerRepository;
 import com.lucianoribeiro.helpdesk.repository.TicketRepository;
@@ -70,18 +71,24 @@ public class TicketService {
         return TicketResponseDTO.from(savedTicket);
     }
 
-    public Page<TicketResponseDTO> getTicketsByCustomerId(
-            Long customerId,
+    public Page<TicketResponseDTO> getTicketsByUserRoleId(
+            Long userRoleId,
+            Integer userTypeId,
             String title,
             Integer status,
             Integer priority,
             Pageable pageable
     ) {
         Specification<Ticket> spec = Specification
-                .where(TicketSpecifications.hasCustomerId(customerId))
-                .and(TicketSpecifications.hasTitle(title))
+                .where(TicketSpecifications.hasTitle(title))
                 .and(TicketSpecifications.hasStatus(status))
                 .and(TicketSpecifications.hasPriority(priority));
+
+        if (userTypeId == UserTypeEnum.CUSTOMER.getId()) {
+            spec = spec.and(TicketSpecifications.hasCustomerId(userRoleId));
+        } else if (userTypeId == UserTypeEnum.TECHNICIAN.getId()) {
+            spec = spec.and(TicketSpecifications.hasTechnicianId(userRoleId));
+        }
 
         return ticketRepository.findAll(spec, pageable)
                 .map(TicketResponseDTO::from);

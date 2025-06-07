@@ -25,4 +25,9 @@ public class TicketSpecifications {
         return (root, query, cb) ->
                 (customerId == null) ? null : cb.equal(root.get("customer").get("id"), customerId);
     }
+
+    public static Specification<Ticket> hasTechnicianId(Long technicianId) {
+        return (root, query, cb) ->
+                (technicianId == null) ? null : cb.equal(root.get("technician").get("id"), technicianId);
+    }
 }
