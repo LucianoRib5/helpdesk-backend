@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -38,5 +39,9 @@ public class TechnicianService {
     public Technician findByUserId(Long userId) {
         Optional<Technician> technician = technicianRepository.findByUserId(userId);
         return technician.orElseThrow(() -> new ObjectNotFoundException("Técnico não encontrado com o ID de usuário: " + userId));
+    }
+
+    public ArrayList<Technician> findAvailableTechnician() {
+        return technicianRepository.findAllByStatusId(TechnicianStatusEnum.AVAILABLE.getId());
     }
 }
