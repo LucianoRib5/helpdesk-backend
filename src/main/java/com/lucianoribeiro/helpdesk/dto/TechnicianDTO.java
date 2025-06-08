@@ -12,6 +12,7 @@ public class TechnicianDTO {
 
     private Long id;
     private Long userId;
+    private String name;
     private Integer assignedTicketsCount;
     private Integer statusId;
     private LocalTime workShiftStart;
@@ -21,6 +22,7 @@ public class TechnicianDTO {
         TechnicianDTO dto = new TechnicianDTO();
         dto.setId(technician.getId());
         dto.setUserId(technician.getUser().getId());
+        dto.setName(technician.getUser().getName());
         dto.setAssignedTicketsCount(technician.getAssignedTicketsCount());
         dto.setStatusId(technician.getStatus().getId());
         dto.setWorkShiftStart(technician.getWorkShiftStart());

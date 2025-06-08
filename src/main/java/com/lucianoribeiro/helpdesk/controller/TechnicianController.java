@@ -25,7 +25,7 @@ public class TechnicianController {
         return ResponseEntity.ok().body(TechnicianDTO.from(technician));
     }
 
-    @GetMapping
+    @GetMapping("/available")
     public ResponseEntity<List<TechnicianDTO>> getAllAvailableTechnicians() {
         List<TechnicianDTO> technicianDTOs = technicianService.findAvailableTechnician()
                 .stream()
