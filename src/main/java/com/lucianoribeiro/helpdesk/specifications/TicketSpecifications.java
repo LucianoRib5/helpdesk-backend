@@ -30,4 +30,8 @@ public class TicketSpecifications {
         return (root, query, cb) ->
                 (technicianId == null) ? null : cb.equal(root.get("technician").get("id"), technicianId);
     }
+
+    public static Specification<Ticket> hasNotAssigned() {
+        return (root, query, cb) -> cb.isNull(root.get("technician"));
+    }
 }

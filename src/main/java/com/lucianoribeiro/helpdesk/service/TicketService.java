@@ -95,11 +95,15 @@ public class TicketService {
                 .map(TicketResponseDTO::from);
     }
 
-    public Page<TicketResponseDTO> getAllTickets(String title, Integer status, Integer priority, Pageable pageable) {
+    public Page<TicketResponseDTO> getAllTickets(String title, Integer status, Integer priority, Boolean notAssigned, Pageable pageable) {
         Specification<Ticket> spec = Specification
                 .where(TicketSpecifications.hasTitle(title))
                 .and(TicketSpecifications.hasStatus(status))
                 .and(TicketSpecifications.hasPriority(priority));
+
+        if (notAssigned != null && notAssigned) {
+            spec = spec.and(TicketSpecifications.hasNotAssigned());
+        }
 
         return ticketRepository.findAll(spec, pageable)
                 .map(TicketResponseDTO::from);

@@ -52,12 +52,13 @@ public class TicketController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(required = false) Boolean notAssigned
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<TicketResponseDTO> result = ticketService.getAllTickets(title, status, priority, pageable);
+        Page<TicketResponseDTO> result = ticketService.getAllTickets(title, status, priority, notAssigned, pageable);
         return ResponseEntity.ok(result);
     }
 
