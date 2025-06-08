@@ -111,4 +111,10 @@ public class TicketController {
         ticketService.assignMultipleTickets(technicianId, dto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PostMapping("/report")
+    public ResponseEntity<TicketReportResponseDTO> generateReport(@RequestBody TicketReportFilterRequestDTO filter) {
+        TicketReportResponseDTO response = ticketService.generateReport(filter);
+        return ResponseEntity.ok(response);
+    }
 }

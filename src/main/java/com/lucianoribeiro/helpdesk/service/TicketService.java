@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.lucianoribeiro.helpdesk.enums.TicketStatusEnum.toTicketStatus;
 import static com.lucianoribeiro.helpdesk.service.TicketHistoryMessageBuilder.buildHistoryMessage;
@@ -236,5 +238,53 @@ public class TicketService {
             ticket.setTechnician(technician);
             ticketRepository.save(ticket);
         }
+    }
+
+    public TicketReportResponseDTO generateReport(TicketReportFilterRequestDTO filter) {
+        Specification<Ticket> spec = Specification.where((root, query, cb) -> cb.between(
+                root.get("createdAt"),
+                filter.getStartDate().atStartOfDay(),
+                filter.getEndDate().atTime(23, 59, 59)
+        ));
+
+        if (filter.getPriorities() != null && !filter.getPriorities().isEmpty()) {
+            spec = spec.and((root, query, cb) -> root.get("priority").get("id").in(filter.getPriorities()));
+        }
+
+        if (filter.getStatuses() != null && !filter.getStatuses().isEmpty()) {
+            spec = spec.and((root, query, cb) -> root.get("status").get("id").in(filter.getStatuses()));
+        }
+
+        List<Ticket> tickets = ticketRepository.findAll(spec);
+
+        TicketReportResponseDTO response = new TicketReportResponseDTO();
+        response.setTotalTickets(tickets.size());
+
+        response.setTicketsByStatus(
+                tickets.stream()
+                        .collect(Collectors.groupingBy(t -> TicketStatusEnum.fromId(t.getStatus().getId()).getTranslatedDescription(), Collectors.counting()))
+                        .entrySet().stream()
+                        .map(e -> new TicketReportResponseDTO.CountDTO(e.getKey(), e.getValue()))
+                        .toList()
+        );
+
+        response.setTicketsByPriority(
+                tickets.stream()
+                        .collect(Collectors.groupingBy(t -> TicketPriorityEnum.fromId(t.getTicketPriorityId()).getTranslatedDescription(), Collectors.counting()))
+                        .entrySet().stream()
+                        .map(e -> new TicketReportResponseDTO.CountDTO(e.getKey(), e.getValue()))
+                        .toList()
+        );
+
+        response.setTicketsOverTime(
+                tickets.stream()
+                        .collect(Collectors.groupingBy(t -> t.getCreatedAt().toLocalDate().toString(), Collectors.counting()))
+                        .entrySet().stream()
+                        .map(e -> new TicketReportResponseDTO.CountByDateDTO(e.getKey(), e.getValue()))
+                        .sorted(Comparator.comparing(TicketReportResponseDTO.CountByDateDTO::date))
+                        .toList()
+        );
+
+        return response;
     }
 }
