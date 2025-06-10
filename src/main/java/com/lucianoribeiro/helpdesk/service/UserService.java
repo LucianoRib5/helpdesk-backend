@@ -193,23 +193,7 @@ public class UserService {
         newStatus.setId(userStatusEnum.getId());
         newStatus.setDescription(userStatusEnum.getDescription());
         user.setStatus(newStatus);
-        userRepository.save(user);
-
-        Optional<Customer> customer = customerRepository.findByUserId(user.getId());
-
-        return UserBasicInfoDTO.from(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getCpf(),
-                user.getCnpj(),
-                user.getPhoneNumber(),
-                UserTypeEnum.fromId(user.getType().getId()),
-                UserStatusEnum.fromId(user.getStatus().getId()),
-                UserPermissionDTO.from(userPermissionRepository.findByUserTypeId(user.getType().getId())),
-                customer.map(Customer::getCity).map(City::getCep).orElse(null),
-                customer.map(Customer::getAddress).orElse(null)
-        );
+        return getUserBasicInfoDTO(user);
     }
 
     public List<UserBasicInfoDTO> findByUserName(String name) {
@@ -265,5 +249,58 @@ public class UserService {
 
         user.setEmail(newEmail);
         userRepository.save(user);
+    }
+
+    public UserBasicInfoDTO updateBasicData(BasicUserDataDTO request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
+
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            user.setName(request.getName());
+        }
+
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()) {
+            user.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        if (user.getType().getId() == UserTypeEnum.CUSTOMER.getId()) {
+            Customer customer = customerRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado."));
+
+            if (request.getCityId() != null) {
+                City city = cityRepository.findById(request.getCityId())
+                        .orElseThrow(() -> new ObjectNotFoundException("Cidade não encontrada."));
+
+                customer.setCity(city);
+            }
+
+            if (request.getAddress() != null && !request.getAddress().isEmpty()) {
+                customer.setAddress(request.getAddress());
+            } else {
+                throw new IllegalArgumentException("Endereço não pode ser vazio para o cliente.");
+            }
+        }
+
+        return getUserBasicInfoDTO(user);
+    }
+
+    private UserBasicInfoDTO getUserBasicInfoDTO(User user) {
+        userRepository.save(user);
+
+        Optional<Customer> customer = customerRepository.findByUserId(user.getId());
+
+        return UserBasicInfoDTO.from(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCpf(),
+                user.getCnpj(),
+                user.getPhoneNumber(),
+                UserTypeEnum.fromId(user.getType().getId()),
+                UserStatusEnum.fromId(user.getStatus().getId()),
+                UserPermissionDTO.from(userPermissionRepository.findByUserTypeId(user.getType().getId())),
+                customer.map(Customer::getCity).map(City::getCep).orElse(null),
+                customer.map(Customer::getAddress).orElse(null)
+        );
     }
 }

@@ -58,4 +58,10 @@ public class UserController {
         userService.updateEmail(id, request.getNewEmail());
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/basic-data")
+    public ResponseEntity<UserBasicInfoDTO> updateBasicData(@RequestBody BasicUserDataDTO request) {
+        UserBasicInfoDTO updatedUser = userService.updateBasicData(request);
+        return ResponseEntity.ok(updatedUser);
+    }
 }
