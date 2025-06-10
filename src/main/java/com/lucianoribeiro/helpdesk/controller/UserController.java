@@ -30,20 +30,20 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody UserRequestDTO dto) {
-        userService.updateUser(id, dto);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<UserBasicInfoDTO> updateUser(@PathVariable Long id, @RequestBody UserRequestDTO dto) {
+        UserBasicInfoDTO updatedUser = userService.updateUser(id, dto);
+        return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> inactivateUser(@PathVariable Long id) {
-        userService.inactivateUser(id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{id}/status")
+    public ResponseEntity<UserBasicInfoDTO> updateUserStatus(@PathVariable Long id, @RequestBody UpdateUserStatusDTO request) {
+        UserBasicInfoDTO updatedUser = userService.updateUserStatus(id, request.getStatus());
+        return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<User>> getUserByUserName(@RequestParam String name) {
-        List<User> users = userService.findByUserName(name);
+    public ResponseEntity<List<UserBasicInfoDTO>> getUserByUserName(@RequestParam String name) {
+        List<UserBasicInfoDTO> users = userService.findByUserName(name);
         return ResponseEntity.ok(users);
     }
 

@@ -4,10 +4,7 @@ import com.lucianoribeiro.helpdesk.dto.*;
 import com.lucianoribeiro.helpdesk.enums.UserStatusEnum;
 import com.lucianoribeiro.helpdesk.enums.UserTypeEnum;
 import com.lucianoribeiro.helpdesk.model.*;
-import com.lucianoribeiro.helpdesk.repository.CityRepository;
-import com.lucianoribeiro.helpdesk.repository.UserPermissionRepository;
-import com.lucianoribeiro.helpdesk.repository.UserRepository;
-import com.lucianoribeiro.helpdesk.repository.UserTypeRepository;
+import com.lucianoribeiro.helpdesk.repository.*;
 import com.lucianoribeiro.helpdesk.config.JwtUtil;
 import com.lucianoribeiro.helpdesk.service.exception.ObjectInvalidPasswordException;
 import com.lucianoribeiro.helpdesk.service.exception.ObjectNotFoundException;
@@ -26,6 +23,7 @@ public class UserService {
     private final UserPermissionRepository userPermissionRepository;
     private final PasswordEncoder passwordEncoder;
     private final CityRepository cityRepository;
+    private final CustomerRepository customerRepository;
     private final CustomerService customerService;
     private final TechnicianService technicianService;
 
@@ -81,7 +79,7 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(Long id, UserRequestDTO dto) {
+    public UserBasicInfoDTO updateUser(Long id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
 
@@ -128,6 +126,25 @@ public class UserService {
         }
 
         userRepository.save(user);
+
+        return UserBasicInfoDTO.from(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCpf(),
+                user.getCnpj(),
+                user.getPhoneNumber(),
+                UserTypeEnum.fromId(user.getType().getId()),
+                UserStatusEnum.fromId(user.getStatus().getId()),
+                UserPermissionDTO.from(userPermissionRepository.findByUserTypeId(user.getType().getId())),
+                customerRepository.findByUserId(user.getId())
+                        .map(Customer::getCity)
+                        .map(City::getCep)
+                        .orElse(null),
+                customerRepository.findByUserId(user.getId())
+                        .map(Customer::getAddress)
+                        .orElse(null)
+        );
     }
 
     public AuthResponseDTO login(String email, String rawPassword) {
@@ -142,33 +159,84 @@ public class UserService {
 
         UserPermission userPermission = userPermissionRepository.findByUserTypeId(user.getType().getId());
 
+        Optional<Customer> customer = customerRepository.findByUserId(user.getId());
+
         UserBasicInfoDTO userBasicInfo = UserBasicInfoDTO.from(
                 user.getId(),
                 user.getName(),
+                user.getEmail(),
+                user.getCpf(),
+                user.getCnpj(),
+                user.getPhoneNumber(),
                 UserTypeEnum.fromId(user.getType().getId()),
-                UserPermissionDTO.from(userPermission)
+                UserStatusEnum.fromId(user.getStatus().getId()),
+                UserPermissionDTO.from(userPermission),
+                customer.map(Customer::getCity).map(City::getCep).orElse(null),
+                customer.map(Customer::getAddress).orElse(null)
         );
 
         return AuthResponseDTO.from(token, userBasicInfo);
     }
 
-    public void inactivateUser(Long id) {
+    public UserBasicInfoDTO updateUserStatus(Long id, String status) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
 
-        UserStatus inactiveStatus = new UserStatus();
-        inactiveStatus.setId(UserStatusEnum.INACTIVE.getId());
-        inactiveStatus.setDescription(UserStatusEnum.INACTIVE.getDescription());
-        user.setStatus(inactiveStatus);
+        UserStatusEnum userStatusEnum;
+        try {
+            userStatusEnum = UserStatusEnum.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Status inválido. Use: ACTIVE ou INACTIVE.");
+        }
+
+        UserStatus newStatus = new UserStatus();
+        newStatus.setId(userStatusEnum.getId());
+        newStatus.setDescription(userStatusEnum.getDescription());
+        user.setStatus(newStatus);
         userRepository.save(user);
+
+        Optional<Customer> customer = customerRepository.findByUserId(user.getId());
+
+        return UserBasicInfoDTO.from(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCpf(),
+                user.getCnpj(),
+                user.getPhoneNumber(),
+                UserTypeEnum.fromId(user.getType().getId()),
+                UserStatusEnum.fromId(user.getStatus().getId()),
+                UserPermissionDTO.from(userPermissionRepository.findByUserTypeId(user.getType().getId())),
+                customer.map(Customer::getCity).map(City::getCep).orElse(null),
+                customer.map(Customer::getAddress).orElse(null)
+        );
     }
 
-    public List<User> findByUserName(String name) {
+    public List<UserBasicInfoDTO> findByUserName(String name) {
         List<User> users = userRepository.findByNameContainingIgnoreCase(name);
         if (users.isEmpty()) {
             throw new ObjectNotFoundException("Nenhum usuário encontrado com o nome: " + name);
         }
-        return users;
+        return users.stream()
+                .map(user -> UserBasicInfoDTO.from(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getCpf(),
+                        user.getCnpj(),
+                        user.getPhoneNumber(),
+                        UserTypeEnum.fromId(user.getType().getId()),
+                        UserStatusEnum.fromId(user.getStatus().getId()),
+                        UserPermissionDTO.from(userPermissionRepository.findByUserTypeId(user.getType().getId())),
+                        customerRepository.findByUserId(user.getId())
+                                .map(Customer::getCity)
+                                .map(City::getCep)
+                                .orElse(null),
+                        customerRepository.findByUserId(user.getId())
+                                .map(Customer::getAddress)
+                                .orElse(null)
+                ))
+                .toList();
     }
 
     public void updatePassword(Long id, String newPassword) {

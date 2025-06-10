@@ -90,5 +90,4 @@ public class User {
         type.setDescription(UserTypeEnum.CUSTOMER.getDescription());
         return type;
     }
-
 }
