@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -41,9 +42,9 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<User> getUserByUserName(@RequestParam String name) {
-        User user = userService.findByUserName(name);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<List<User>> getUserByUserName(@RequestParam String name) {
+        List<User> users = userService.findByUserName(name);
+        return ResponseEntity.ok(users);
     }
 
     @PutMapping("/{id}/password")

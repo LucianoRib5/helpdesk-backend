@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -162,9 +163,12 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public User findByUserName(String name) {
-        return userRepository.findByName(name)
-                .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado com o nome de usuário: " + name));
+    public List<User> findByUserName(String name) {
+        List<User> users = userRepository.findByNameContainingIgnoreCase(name);
+        if (users.isEmpty()) {
+            throw new ObjectNotFoundException("Nenhum usuário encontrado com o nome: " + name);
+        }
+        return users;
     }
 
     public void updatePassword(Long id, String newPassword) {
