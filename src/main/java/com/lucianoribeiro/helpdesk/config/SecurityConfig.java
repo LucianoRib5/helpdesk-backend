@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/cities/cep/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
