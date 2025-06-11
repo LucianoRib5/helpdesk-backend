@@ -223,31 +223,39 @@ public class UserService {
                 .toList();
     }
 
-    public void updatePassword(Long id, String newPassword) {
+    public void updatePassword(Long id, UpdatePasswordDTO request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
 
-        if (newPassword == null || newPassword.isEmpty()) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new ObjectInvalidPasswordException("Senha atual inválida.");
+        }
+
+        if (request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
             throw new IllegalArgumentException("Nova senha não pode ser vazia.");
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 
-    public void updateEmail(Long id, String newEmail) {
+    public void updateEmail(Long id, UpdateEmailDTO request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Usuário não encontrado."));
 
-        if (newEmail == null || newEmail.isEmpty()) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ObjectInvalidPasswordException("Senha inválida");
+        }
+
+        if (request.getNewEmail() == null || request.getNewEmail().isEmpty()) {
             throw new IllegalArgumentException("Novo e-mail não pode ser vazio.");
         }
 
-        if (!newEmail.equals(user.getEmail()) && userRepository.existsByEmail(newEmail)) {
+        if (!request.getNewEmail().equals(user.getEmail()) && userRepository.existsByEmail(request.getNewEmail())) {
             throw new IllegalArgumentException("E-mail já cadastrado.");
         }
 
-        user.setEmail(newEmail);
+        user.setEmail(request.getNewEmail());
         userRepository.save(user);
     }
 

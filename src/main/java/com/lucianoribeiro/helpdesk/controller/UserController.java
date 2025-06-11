@@ -49,13 +49,13 @@ public class UserController {
 
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody UpdatePasswordDTO request) {
-        userService.updatePassword(id, request.getNewPassword());
+        userService.updatePassword(id, request);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/email")
     public ResponseEntity<Void> updateEmail(@PathVariable Long id, @RequestBody UpdateEmailDTO request) {
-        userService.updateEmail(id, request.getNewEmail());
+        userService.updateEmail(id, request);
         return ResponseEntity.noContent().build();
     }
 

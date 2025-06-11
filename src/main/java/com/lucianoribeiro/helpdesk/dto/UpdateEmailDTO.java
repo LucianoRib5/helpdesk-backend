@@ -8,4 +8,5 @@ import lombok.Setter;
 public class UpdateEmailDTO {
 
     private String newEmail;
+    private String password;
 }
